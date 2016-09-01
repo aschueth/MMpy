@@ -1,5 +1,9 @@
 '''
-
+This program was written by Alex Schueth for the use in the Integrated Mesonet and Tracker (IMeT) for Dr. Adam Houston at the University of Nebraska-Lincoln.
+This program was written in Python 2.7
+The purpose of this program is to read atmospheric data from serial, time sync the data to the GPS time, and then plot the data real-time in a framework that is easily manipulated
+The last commit of this program was on 8/31/2016
+Any questions or comments, Alex can be reached at:   schueth.alex@gmail.com
 '''
 from multiprocessing import Process
 from datetime import datetime, timedelta
