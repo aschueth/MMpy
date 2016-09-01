@@ -27,7 +27,7 @@ class CAxisTime(pg.AxisItem):   #sets the x axis as current UTC time. I DON'T KN
 
 
 class Window(QtGui.QMainWindow):
-        
+    '''This is the main window class, or the border if you will. This class controls the name of the window and the x buttons and such. All the graphics layout widgets and such are put inside this window.'''
     def __init__(self, *args, **kwargs):
         super(Window,self).__init__(*args, **kwargs)
             
@@ -54,8 +54,8 @@ class Window(QtGui.QMainWindow):
             event.ignore()
             
             
-#class that inherits the Graphics layout widget. This embeds plots in a certain pattern or location in the window. In this case it is a 3x2 grid of plots. This layout is then inserted into a dock in order for the tabs to work
 class ThermoWidget(pg.GraphicsLayoutWidget):
+    '''This class is a layout widget for the thermodynamic variables in tab one of the MMpy GUI. It embeds plots in a certain pattern or location in the window. In this case it is a 3x2 grid of plots. This layout is then inserted into a dock in order for the tabs to work'''
     def __init__(self,*args, **kwargs):
         super(ThermoWidget, self).__init__(*args, **kwargs)
         
@@ -132,6 +132,7 @@ class ThermoWidget(pg.GraphicsLayoutWidget):
 
 #==========================================================================================
 class KinemWidget(pg.GraphicsLayoutWidget):
+    '''This class is a layout widget for the kinematic variables in tab two of the MMpy GUI. It plots the wind speed and wind direction on the top row and the vehicle direction and the wind direction as a compass on the bottom row.'''
     def __init__(self, background = 'w', *args, **kwargs):
         super(KinemWidget, self).__init__(*args, **kwargs)
 
@@ -187,7 +188,7 @@ class KinemWidget(pg.GraphicsLayoutWidget):
 #==========================================================================================
 #This widget was found online, I have not customized it too much other than modifying the pointer and colors to fit with the background.
 class CompassWidget(QWidget):
-
+    '''CLass to plot a compass'''
     angleChanged = pyqtSignal(float)
 
     def __init__(self, parent = None):
@@ -272,9 +273,9 @@ class CompassWidget(QWidget):
     angle = pyqtProperty(float, angle, setAngle)     
     
 #=====================================================================================================================
-#this is the process for reading in the Pressure data through serial 
     
 def PressureProcess(Presspro):
+    '''Function that opens the serial port for the Pressure, writes the raw data to a log file, processes the raw data into a coherent string, and adds that string into a queue. This function is ran through multiprocessing and uses the queue to transport information to the main program.'''
     ser4 = serial.Serial(port='COM6',baudrate=9600) #opens serial port 
     sio4 = io.TextIOWrapper(            #not sure if this section is needed, it isn't for the fluxgate. However the examples have it so it will stay for now
         io.BufferedRWPair(ser4, ser4, 1),
@@ -303,9 +304,9 @@ def PressureProcess(Presspro):
         Pressureout=P_str[:-2]+','+Ptime+'\n'     #takes all of the raw data and creates a combined logout string
         Presspro.put(Pressureout)       #adds the string to the queue
 #=====================================================================================================================
-#this is the process for reading in the THV data from the logger through serial
         
 def GPSProcess(GPSpro):
+    '''Function that opens the serial port for the GPS, writes the raw data to a log file, processes the raw data into a coherent string, and adds that string into a queue. This function is ran through multiprocessing and uses the queue to transport information to the main program.'''
     ser3 = serial.Serial(port='COM5',baudrate=9600)     #opens serial port
     sio3 = io.TextIOWrapper(        #not sure if this section is needed, it isn't for the fluxgate. However the examples have it so it will stay for now
         io.BufferedRWPair(ser3, ser3, 1),
@@ -363,9 +364,9 @@ def GPSProcess(GPSpro):
         finally:
             rawGPS.close()
 #=====================================================================================================================
-#this is the process for reading in the THV data from the logger through serial
             
 def THVProcess(THVpro):
+    '''Function that opens the serial port for the logger that reads THV data, writes the raw data to a log file, processes the raw data into a coherent string, and adds that string into a queue. This function is ran through multiprocessing and uses the queue to transport information to the main program.'''
     ser1 = serial.Serial(port='COM3',baudrate=9600)   #opens serial port
     sio1 = io.TextIOWrapper(    #not sure if this section is needed, it isn't for the fluxgate. However the examples have it so it will stay for now
         io.BufferedRWPair(ser1, ser1, 1),
@@ -394,9 +395,9 @@ def THVProcess(THVpro):
         THVout=THV_str[:-2]+' '+'  20+'+THVtime+'\n'    #takes all of the raw data and creates a combined logout string
         THVpro.put(THVout)  #adds the string to the queue
 #=====================================================================================================================
-#this is the process for reading in the heading data from the fluxgate through serial
         
 def FluxProcess(Fluxpro):
+    '''Function that opens the serial port for the fluxgate, writes the raw data to a log file, processes the raw data into a coherent string, and adds that string into a queue. This function is ran through multiprocessing and uses the queue to transport information to the main program.'''
     ser2 = serial.Serial(port='COM4',baudrate=9600, timeout=0.5)  #opens serial port
     starttime=strftime("%Y%m%d_%H%M", gmtime()) #gets current time (when it started) to append to the file name
     rawFlux = open(starttime+'_raw_fg.txt', 'a') #opens a file for the raw data to be logged
@@ -422,31 +423,31 @@ def FluxProcess(Fluxpro):
         Fluxpro.put(Fluxout)    #adds the string to the queue
 #=====================================================================================================================
         
-#This function calculates the dewpoint temperature in celsius as it is so fittably named
 def dewcalc(RH, temps):
+    ''' This function calculates the dewpoint temperature in celsius given the relative humidity in % and the slow temperature sensor in celsius'''
     gma = np.log(0.01*RH*np.exp((18.678-temps/234.5)*(temps/(257.14+temps))))
     dewpoint = 257.14*gma/(18.678-gma)
     return dewpoint
 
-#This function is used to correct the relative humidity coming from the sensors. Not sure exactly what or why, but I think it has something to do with the response time of the sensor
 def RHcorr(Td, tempf):
+    '''This function corrects the Relative Humidity due to the response time of the temperature sensors given the dewpoint temperature in celsius and the fast temperature in celsius'''
     RH = 100*(np.exp((17.625*Td)/(243.04+Td))/np.exp((17.625*tempf)/(243.04+tempf)))
     return RH
 
-#This function calculates the potential temperature in Kelvin as it is so fittably named
 def thetacalc(tempf, P):
+    '''This function calculates the potential temperature in Kelvin given the fast temperature in celsius and the Pressure in hPa'''
     theta = (tempf+273.15)*np.power((100000/(P*100)),0.286)
     return theta
-
-#This function calculates the water vapor mixing ratio in g/kg as it is so fittably named    
+  
 def wvmixratcalc(tempf, RH, P):
+    '''This function calculates the water vapor mixing ratio in g/kg given the fast temperature in celsius, the relative humidity in %, and the pressure in hPa'''
     es = 6.112*np.exp((17.67*tempf)/(tempf+243.5))
     e = 0.01*es*RH
     qv = 100*0.622*e/(P*100)
     return qv*1000
-
-#This function calculates the equivalent potential temperature in Kelvin as it is so fittably named    
+  
 def thetaecalc(RH, dew, temps, tempf, P):
+    '''This function calculates the equivalent potential temperature in Kelvin given the relative humidity in %, the dewpoint temperature in celsius, the slow temperature in celsius, the fast temperature in celsius, and the pressure in hPa'''
     theta = thetacalc(tempf, P)
     es = 6.112*np.exp((17.67*tempf)/(tempf+243.5))
     e = 0.01*es*RH
@@ -456,22 +457,22 @@ def thetaecalc(RH, dew, temps, tempf, P):
     thetae = tm*np.exp(((3376.0/tlcl)-2.54)*qv*(1.0+0.81*qv))
     return thetae 
 
-#This function calculates the virtual potential temperature in Kelvin as it is so fittably named
 def thetavcalc(tempf, qv, P):
+    '''This function calculates the virtual potential temperature in Kelvin, given the fast temperature in celsius, the water vapor mixing ratio in g/kg, and the pressure in hPa'''
     theta=thetacalc(tempf, P)
     thetav=(1+0.61*qv)*theta
     return thetav
     
-#This function calculates the wind speed in m/s as it is so fittably named    
 def windspdcalc(anemspd, anemdir, vehspd, vehdir):
+    '''This function calculates the wind speed in m/s given the anemometer wind speed in m/s, anemometer direction in degrees, vehicle speed in m/s and vehicle direction in degrees'''
     Uvr = -anemspd * np.sin(np.deg2rad(anemdir-142.5))
     Vvr = vehspd - anemspd * np.cos(np.deg2rad(anemdir-142.5))
     
     windspd = np.sqrt(np.square(Uvr)+ np.square(Vvr))
     return windspd
     
-#This function calculates the wind direction in degrees as it is so fittably named
 def winddircalc(anemspd, anemdir, vehspd, vehdir):
+    '''This function calculates the wind direction in degrees given the anemometer wind speed in m/s, anemometer direction in degrees, vehicle speed in m/s and vehicle direction in degrees'''
     Uvr = -anemspd * np.sin(np.deg2rad(anemdir-142.5))  #142.5 is a calibration angle. The anemdir=142.5 when it was lined up with the car, the vehdir is then added onto that
     Vvr = vehspd - anemspd * np.cos(np.deg2rad(anemdir-142.5))
     if Uvr == 0 and Vvr < 0: 
