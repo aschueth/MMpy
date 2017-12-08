@@ -16,6 +16,7 @@ from PyQt4.QtCore import Qt, QTime
 from pyqtgraph.dockarea import *
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+import re
 
 
 
@@ -802,7 +803,7 @@ if __name__ == '__main__':  #likely a crappy way to call the "main" class/thread
         else:
             try:
                 ct+=1
-                THV_str=THV_str.split("+")
+                THV_str=re.split("\+|\-",THV_str)#negative to make it work in the winter
                 fasttemp[ct]=str(THV_str[5])[0:6]
                 slowtemp[ct]=str(THV_str[6])[0:6]
                 uncorRH[ct]=str(THV_str[7])[0:6]
