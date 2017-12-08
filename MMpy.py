@@ -189,7 +189,7 @@ class KinemWidget(pg.GraphicsLayoutWidget):
 #==========================================================================================
 #This widget was found online, I have not customized it too much other than modifying the pointer and colors to fit with the background.
 class CompassWidget(QWidget):
-    '''CLass to plot a compass'''
+    '''Class to plot a compass'''
     angleChanged = pyqtSignal(float)
 
     def __init__(self, parent = None):
@@ -801,8 +801,8 @@ if __name__ == '__main__':  #likely a crappy way to call the "main" class/thread
             thermodynamic.plot6(pressure[:c])
             kinematic.plot7(windspd[:c])
             kinematic.plot8(winddir[:c])
-            kinematic.compass1.setAngle(flux[:c])
-            kinematic.compass2.setAngle(winddir[:c])
+            kinematic.compass1.setAngle(flux[c])
+            kinematic.compass2.setAngle(winddir[c])
             pass
         else:
             try:
@@ -968,8 +968,8 @@ if __name__ == '__main__':  #likely a crappy way to call the "main" class/thread
                 thermodynamic.plot6(pressure[:c])
                 kinematic.plot7(windspd[:c])
                 kinematic.plot8(winddir[:c])
-                kinematic.compass1.setAngle(flux[:c])
-                kinematic.compass2.setAngle(winddir[:c])
+                kinematic.compass1.setAngle(flux[c])
+                kinematic.compass2.setAngle(winddir[c])
                 
                 #adds wind spd, wind dir, and flux to the logout string as long as it's time synced
                 if not findex == 4:
