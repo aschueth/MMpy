@@ -319,7 +319,8 @@ def GPSProcess(GPSpro):
         GPS = ser3.readline()   #get data through the serial port
         GPS_str = str(GPS)      #Convert it to a string in order to be logged
         rawGPS = open(starttime+'_raw_gps.txt', 'a')    #opens a file for the raw data to be logged
-        
+        chasercode = open('C:\users\imet1\Documents\Chaser_Code\GPS_chaser.txt','wb')   #chasercode lines output lat lon to separate file; added by Alex Krull
+
         try:
             #If the first section of the GPS is the code GPGGA, as in it ends with an 'A', then get the current computer time, the # of GPS satellites and the altitude of the GPS
             if (GPS_str[5] == 'A'): #GPGGA
@@ -358,12 +359,15 @@ def GPSProcess(GPSpro):
             pass
         try:
             rawGPS.write('{0:}'.format(GPS_str[:-2]+','+compGPStime+'\n'))  #writes the GPS data to the raw log file
+            chasercode.write('%s,%s' % (latGPS,lonGPS)) 
         except(NameError):
             print "GPS NameError"
             compGPStime='still initializing'   #depending on the time the computer starts listening to the GPS, the data maybe be in halfway. Therefore it puts 'still initializing' until a whole cycle is done and the computer can read the data cleanly
             rawGPS.write('{0:}'.format(GPS_str[:-2]+','+compGPStime+'\n'))  #writes the what data it can to the raw log file
+            chasercode.write('%s,%s' % (latGPS,lonGPS)) 
         finally:
             rawGPS.close()
+            chasercode.close()
 #=====================================================================================================================
             
 def THVProcess(THVpro):
